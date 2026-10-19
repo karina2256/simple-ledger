@@ -13,9 +13,9 @@
        - 直接把安装包和本页放在同一个目录，用相对文件名
      没填真实地址时，按钮会跳到 #download 并提示「下载地址还没配好」，不会跳到 404。 */
   var DOWNLOADS = {
-    portable: '',  // 例：'https://github.com/你的账号/记账簿/releases/download/v0.1.0/daily-ledger-0.1.0-portable.exe'
-    setup: '',     // 例：'.../daily-ledger-0.1.0-setup.exe'
-    msi: ''        // 例：'.../daily-ledger-0.1.0-installer.msi'
+    portable: 'https://github.com/karina2256/simple-ledger/releases/download/v0.1.0/daily-ledger-0.1.0-portable.exe',
+    setup: 'https://github.com/karina2256/simple-ledger/releases/download/v0.1.0/daily-ledger-0.1.0-setup.exe',
+    msi: 'https://github.com/karina2256/simple-ledger/releases/download/v0.1.0/daily-ledger-0.1.0-installer.msi'
   }
 
   /* ---------- 2. 深浅色 ---------- */
