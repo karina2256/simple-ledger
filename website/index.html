@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>记账簿 · 完全离线的本地记账软件（Windows）</title>
+    <meta
+      name="description"
+      content="记账簿是一款完全离线的 Windows 本地记账软件：数据只存在你自己电脑上，不联网、不上传、断网可用。支持截图识别账单、日历四级视图、汇总图表、预算与 CSV/Excel 导出。免费下载。"
+    />
+    <meta name="keywords" content="记账软件,记账簿,离线记账,本地记账,Windows记账,账单截图识别,记账App,免费记账,隐私记账,个人财务" />
+    <meta name="author" content="记账簿" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://example.com/" />
+
+    <!-- 社交分享卡片：发到微信/QQ/Twitter 时的预览 -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="记账簿 · 完全离线的本地记账软件" />
+    <meta
+      property="og:description"
+      content="数据只存在你自己的电脑上，不联网、不上传。截图丢进去自动记账，日历、汇总、预算、Excel 导出全都有。"
+    />
+    <meta property="og:image" content="assets/shots/records.png" />
+    <meta property="og:url" content="https://example.com/" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="assets/icons/icon.png" />
+    <link rel="apple-touch-icon" href="assets/icons/icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+
+    <!-- 结构化数据：让搜索引擎更准确地理解这是什么产品 -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "记账簿",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Windows 10, Windows 11",
+        "description": "完全离线的 Windows 本地记账软件。数据只存在本机，不联网、不上传、断网可用，支持账单截图识别、日历视图、汇总图表、预算与 Excel 导出。",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
+        "softwareVersion": "0.1.0",
+        "inLanguage": "zh-CN"
+      }
+    </script>
+  </head>
+  <body>
+    <!-- 环境光斑：和软件里同一套动效语言 -->
+    <div class="ambient" aria-hidden="true">
+      <span class="blob blob--a"></span>
+      <span class="blob blob--b"></span>
+      <span class="blob blob--c"></span>
+    </div>
+    <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
+    <header class="nav" id="nav">
+      <a class="nav__brand" href="#top">
+        <img src="assets/icons/icon.png" alt="记账簿图标" width="28" height="28" />
+        <span>记账簿</span>
+      </a>
+      <nav class="nav__links">
+        <a href="#features">功能</a>
+        <a href="#privacy">隐私</a>
+        <a href="#shots">界面</a>
+        <a href="#download">下载</a>
+        <a href="#faq">常见问题</a>
+      </nav>
+      <div class="nav__actions">
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="切换深浅色">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" />
+          </svg>
+        </button>
+        <a class="btn btn--primary btn--sm" href="#download">免费下载</a>
+      </div>
+    </header>
+
+    <main id="top">
+      <!-- ============ 首屏 ============ -->
+      <section class="hero">
+        <div class="hero__inner">
+          <span class="pill reveal">
+            <span class="dot"></span>
+            完全离线 · 不联网 · 不上传
+          </span>
+          <h1 class="hero__title reveal">
+            你的账，
+            <em>只留在你自己的电脑上</em>
+          </h1>
+          <p class="hero__sub reveal">
+            记账簿是一款 Windows 桌面记账软件。没有账号、没有服务器、没有同步——
+            断网也能用，收据截图丢进去自动读成记录。数据就是你自己目录里的一个文件。
+          </p>
+          <div class="hero__cta reveal">
+            <a class="btn btn--primary btn--lg" href="#download">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14" />
+              </svg>
+              免费下载（Windows）
+            </a>
+            <a class="btn btn--ghost btn--lg" href="#shots">先看看界面</a>
+          </div>
+          <p class="hero__meta reveal">Windows 10 / 11 · 约 116 MB · 免安装可直接运行 · 不收集任何数据</p>
+
+          <!-- 主视觉：真实界面截图，滚动时轻微抬升 -->
+          <div class="hero__stage reveal">
+            <div class="glass hero__card tilt">
+              <div class="window-bar">
+                <span class="window-dot"></span><span class="window-dot"></span><span class="window-dot"></span>
+                <span class="window-title">记账簿 — 记录</span>
+              </div>
+              <img src="assets/shots/records.png" alt="记账簿记录页界面：收入支出合计与账目表格" width="1445" height="897" />
+            </div>
+            <div class="hero__float glass" data-float>
+              <span class="stat__label">本月结余</span>
+              <span class="stat__value">¥9,480.20</span>
+            </div>
+            <div class="hero__float hero__float--b glass" data-float>
+              <span class="stat__label">截图识别</span>
+              <span class="stat__value">36 行 · 0.9 秒</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 数字 ============ -->
+      <section class="stats">
+        <div class="stats__grid">
+          <div class="stat glass reveal"><span class="stat__num" data-count="0">0</span><span class="stat__cap">联网请求</span></div>
+          <div class="stat glass reveal"><span class="stat__num" data-count="1">1</span><span class="stat__cap">个数据库文件</span></div>
+          <div class="stat glass reveal"><span class="stat__num" data-count="11">11</span><span class="stat__cap">个功能页面</span></div>
+          <div class="stat glass reveal"><span class="stat__num" data-count="49">49</span><span class="stat__cap">枚手绘图标</span></div>
+        </div>
+      </section>
+
+      <!-- ============ 功能 ============ -->
+      <section class="section" id="features">
+        <div class="section__head reveal">
+          <span class="section__eyebrow">功能</span>
+          <h2>该有的都有，只是不上传</h2>
+          <p>市面上记账软件的功能清单，我们照着做了一遍——除了「把数据传到别人服务器」那一条。</p>
+        </div>
+
+        <div class="cards">
+          <article class="card glass reveal">
+            <span class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="16" rx="3" /><circle cx="12" cy="12" r="3" /><path d="M8 4l1-2h6l1 2" />
+              </svg>
+            </span>
+            <h3>截图记账</h3>
+            <p>
+              把微信账单页的截图丢进去，程序自己读成一条条记录给你核对。识别在你电脑上算，
+              <strong>图片不会上传</strong>。哪天只截了一半，它会提示「当天小计对不上」并默认不导入。
+            </p>
+          </article>
+
+          <article class="card glass reveal">
+            <span class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 10h18M8 3v4M16 3v4" />
+              </svg>
+            </span>
+            <h3>日历四级视图</h3>
+            <p>年 → 月 → 周 → 日逐级下钻，每格直接显示当天收入、支出与净变化，一眼看出钱花在哪几天。</p>
+          </article>
+
+          <article class="card glass reveal">
+            <span class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19V5M4 19h16" /><path d="M8 15l3.5-4.5L15 13l4-6" />
+              </svg>
+            </span>
+            <h3>汇总与图表</h3>
+            <p>月度趋势折线、支出与收入构成饼图、单笔极值、日均支出，月份区间随意切换。</p>
+          </article>
+
+          <article class="card glass reveal">
+            <span class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" /><path d="M12 8v8M9.5 10h5M9.5 14h5" />
+              </svg>
+            </span>
+            <h3>预算与超支提醒</h3>
+            <p>给「餐饮」设一个月度额度，进度条走到 80% 变色、超支标红。设一次长期有效，不用每月重设。</p>
+          </article>
+
+          <article class="card glass reveal">
+            <span class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3v12M7.5 10.5 12 15l4.5-4.5" /><path d="M4 19h16" />
+              </svg>
+            </span>
+            <h3>Excel / CSV 导出</h3>
+            <p>
+              导出的 Excel 里金额是<strong>数值单元格</strong>，打开就能直接求和；CSV 任何记账软件都能读。
+              也能把别处导出的 CSV 导进来，先核对再入库。
+            </p>
+          </article>
+
+          <article class="card glass reveal">
+            <span class="card__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="10" width="16" height="10" rx="3" /><path d="M8 10V7a4 4 0 0 1 8 0v3" />
+              </svg>
+            </span>
+            <h3>应用锁与自动备份</h3>
+            <p>
+              4 位以上 PIN 挡住随手打开你的人（加盐哈希存放，程序里读不到明文）；
+              自动备份按天或按周留档，保留份数自己定。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ 隐私：这是产品的核心卖点 ============ -->
+      <section class="section section--privacy" id="privacy">
+        <div class="section__head reveal">
+          <span class="section__eyebrow">隐私</span>
+          <h2>我们没有你的数据，因为我们收不到</h2>
+          <p>这不是一句承诺，而是这个软件的结构决定的：它根本没有联网的代码路径。</p>
+        </div>
+
+        <div class="split">
+          <div class="glass panel reveal">
+            <h3 class="panel__title">记账簿不会做的事</h3>
+            <ul class="check-list">
+              <li><span class="x">✕</span> 没有账号、没有登录、没有手机号</li>
+              <li><span class="x">✕</span> 不联网、不上传、不同步</li>
+              <li><span class="x">✕</span> 没有广告、没有统计 SDK、没有埋点</li>
+              <li><span class="x">✕</span> 截图识别在<strong>本机</strong>完成，图片不外发</li>
+              <li><span class="x">✕</span> 不读你的通讯录、短信、位置</li>
+            </ul>
+          </div>
+          <div class="glass panel reveal">
+            <h3 class="panel__title">你的数据在哪</h3>
+            <p class="panel__text">就是你第一次打开时选的那个文件夹：</p>
+            <pre class="code"><code>你的数据目录\
+├─ daily-ledger.db   ← 全部账目在这一个文件里
+├─ attachments\      ← 收据截图
+└─ backup\           ← 自动与手动备份</code></pre>
+            <p class="panel__text">
+              把整个目录复制到新电脑，选同一个目录就能接着用。
+              想彻底删掉？删掉这个目录即可，我们这边没有任何副本。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 界面截图 ============ -->
+      <section class="section" id="shots">
+        <div class="section__head reveal">
+          <span class="section__eyebrow">界面</span>
+          <h2>真实截图，不是效果图</h2>
+          <p>下面每一张都是软件本体的实际界面，点一下可放大。</p>
+        </div>
+
+        <div class="gallery">
+          <figure class="shot glass reveal" data-full="assets/shots/records.png">
+            <img src="assets/shots/records.png" alt="记录页：按月查看账目，收入支出与结余合计" loading="lazy" />
+            <figcaption>记录 · 按月浏览与关键词过滤</figcaption>
+          </figure>
+          <figure class="shot glass reveal" data-full="assets/shots/billshot.png">
+            <img src="assets/shots/billshot.png" alt="截图记账页：上传微信账单截图自动识别成记录" loading="lazy" />
+            <figcaption>截图记账 · 丢截图进去自动识别</figcaption>
+          </figure>
+          <figure class="shot glass reveal" data-full="assets/shots/stats.png">
+            <img src="assets/shots/stats.png" alt="汇总页：收支概览卡、月度趋势折线与构成饼图" loading="lazy" />
+            <figcaption>汇总 · 趋势与构成</figcaption>
+          </figure>
+          <figure class="shot glass reveal" data-full="assets/shots/calendar.png">
+            <img src="assets/shots/calendar.png" alt="日历页：月视图里每格显示当天收支" loading="lazy" />
+            <figcaption>日历 · 年 / 月 / 周 / 日</figcaption>
+          </figure>
+          <figure class="shot glass reveal" data-full="assets/shots/budgets.png">
+            <img src="assets/shots/budgets.png" alt="预算页：为分类设置月度额度并显示进度" loading="lazy" />
+            <figcaption>预算 · 额度与超支提醒</figcaption>
+          </figure>
+          <figure class="shot glass reveal" data-full="assets/shots/search.png">
+            <img src="assets/shots/search.png" alt="搜索页：按关键词、日期、账户、分类、金额档位筛选" loading="lazy" />
+            <figcaption>搜索 · 多条件组合筛选</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ============ 下载 ============ -->
+      <section class="section section--download" id="download">
+        <div class="section__head reveal">
+          <span class="section__eyebrow">下载</span>
+          <h2>选一个，装完就能记账</h2>
+          <p>三个包功能完全一样，按你的习惯挑一个就行，不用都装。</p>
+        </div>
+
+        <div class="downloads">
+          <article class="dl glass reveal dl--feature">
+            <span class="dl__badge">推荐</span>
+            <h3>免安装版</h3>
+            <p class="dl__desc">双击就能用，不写注册表、不建快捷方式。不想要了直接删文件，不留痕迹。</p>
+            <p class="dl__meta">Windows x64 · 约 116 MB · 便携</p>
+            <a class="btn btn--primary btn--block" href="#" data-download="portable">
+              下载免安装版
+            </a>
+          </article>
+
+          <article class="dl glass reveal">
+            <h3>安装版</h3>
+            <p class="dl__desc">正规安装，桌面与开始菜单会有快捷方式，卸载走系统设置。</p>
+            <p class="dl__meta">Windows x64 · 约 116 MB · 安装程序</p>
+            <a class="btn btn--ghost btn--block" href="#" data-download="setup"> 下载安装版 </a>
+          </article>
+
+          <article class="dl glass reveal">
+            <h3>MSI 安装包</h3>
+            <p class="dl__desc">适合需要统一部署或喜欢 MSI 的场景，可用命令行静默安装。</p>
+            <p class="dl__meta">Windows x64 · 约 127 MB · MSI</p>
+            <a class="btn btn--ghost btn--block" href="#" data-download="msi"> 下载 MSI </a>
+          </article>
+        </div>
+
+        <div class="glass notice reveal">
+          <h4>第一次打开可能看到 Windows 蓝色警告，是正常的</h4>
+          <p>
+            这个软件还没购买代码签名证书，所以 Windows SmartScreen 会拦一下：
+            点「<strong>更多信息</strong>」→「<strong>仍要运行</strong>」即可，不是病毒。
+            杀毒软件也可能误报，加白名单就行。介意的话可以先看源码，或者先用免安装版试。
+          </p>
+        </div>
+
+        <p class="dl__foot reveal">
+          当前版本 <strong id="versionLabel">0.1.0</strong> ·
+          <a href="https://example.com/changelog" id="changelogLink">更新日志</a> ·
+          校验值见下载页说明
+        </p>
+      </section>
+
+      <!-- ============ 常见问题（也是搜索引擎会抓的正文） ============ -->
+      <section class="section" id="faq">
+        <div class="section__head reveal">
+          <span class="section__eyebrow">常见问题</span>
+          <h2>你可能想问的</h2>
+        </div>
+        <div class="faq">
+          <details class="glass reveal" open>
+            <summary>真的完全免费吗？</summary>
+            <p>是的。没有内购、没有会员、没有导出收费。软件本身也不联网，想收费也没有渠道。</p>
+          </details>
+          <details class="glass reveal">
+            <summary>换电脑怎么办？</summary>
+            <p>
+              把数据目录整个复制过去（里面有 <code>daily-ledger.db</code>），在新电脑上打开软件、选同一个目录即可。
+              也可以用「设置 → 导入 / 导出」导出 Excel 或 CSV 做一份额外的表格留存。
+            </p>
+          </details>
+          <details class="glass reveal">
+            <summary>支持手机吗？能同步到手机吗？</summary>
+            <p>
+              目前只有 Windows 桌面版，而且设计上就<strong>不做同步</strong>——同步意味着要有服务器，有服务器就意味着数据要离开你的电脑。
+              想在手机上记账，可以把数据导出成 Excel 在手机上看。
+            </p>
+          </details>
+          <details class="glass reveal">
+            <summary>截图识别支持哪些截图？</summary>
+            <p>
+              目前针对微信「记账本」的明细页做了完整适配，识别与核对都经过真实截图验证；
+              其它截图（微信官方账单页、支付宝、银行短信）还在逐步支持。
+              识别是按「肉眼看到的行」逐行读取的，所以同类排版越规整，结果越好。
+            </p>
+          </details>
+          <details class="glass reveal">
+            <summary>数据会不会丢？</summary>
+            <p>
+              软件会在启动时按你的设置自动备份（默认每周，保留 7 份），也可以随时手动备份，
+              备份就在数据目录的 <code>backup</code> 文件夹里。真实的保障还是「你有没有把这个文件夹放进网盘或移动硬盘」——
+              这一点任何本地软件都一样。
+            </p>
+          </details>
+          <details class="glass reveal">
+            <summary>为什么安装包有 116 MB？</summary>
+            <p>
+              里面打包了离线 OCR 识别模型（约 15 MB）和完整的运行环境，所以不需要联网就能识别截图，
+              也不需要你额外安装任何运行库。
+            </p>
+          </details>
+        </div>
+      </section>
+
+      <section class="finale">
+        <div class="glass finale__card reveal">
+          <h2>把账记在自己电脑上，从今天开始</h2>
+          <p>免费、无广告、不联网。装完只要选一个文件夹就能开始。</p>
+          <a class="btn btn--primary btn--lg" href="#download">免费下载记账簿</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <div>
+          <img src="assets/icons/icon.png" alt="" width="22" height="22" />
+          <span>记账簿 · 本地离线记账</span>
+        </div>
+        <nav>
+          <a href="#features">功能</a>
+          <a href="#privacy">隐私</a>
+          <a href="#download">下载</a>
+          <a href="privacy.html">隐私政策</a>
+          <a href="#faq">常见问题</a>
+        </nav>
+        <p class="footer__note">
+          本站不设置 Cookie、不加载第三方统计脚本、不收集访客信息。
+        </p>
+      </div>
+    </footer>
+
+    <!-- 图片放大 -->
+    <div class="lightbox" id="lightbox" hidden>
+      <button class="lightbox__close" id="lightboxClose" type="button" aria-label="关闭">✕</button>
+      <img id="lightboxImg" alt="" />
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

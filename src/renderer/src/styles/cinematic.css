@@ -1,0 +1,757 @@
+/* ==========================================================================
+   炫技层（cinematic layer）—— 目标是「Apple 产品页」那种观感
+
+   手段都是 Chromium 132 的原生能力，不引任何动画库：
+     · animation-timeline: view() / scroll()  → 滚动驱动揭示与视差
+     · linear() 手写弹簧曲线                  → 过冲回弹（不是贝塞尔的假弹性）
+     · ::view-transition-*                    → 路由转场与主题圆形擦除
+     · backdrop-filter + color-mix            → 毛玻璃与半透明表面
+
+   三档强度由 <html data-motion> 控制：
+     showcase（默认）＝ 全部开启；standard ＝ 只留上一轮的克制层；minimal ＝ 全部关掉。
+   系统「减少动态效果」永远优先，压过三档设置（见文件末尾）。
+   ========================================================================== */
+
+:root {
+  /* 弹簧曲线：由阻尼弹簧方程采样成 linear()，峰值分别 1.00 / 1.075 / 1.227 */
+  --x-soft: linear(
+    0, 0.015 3.8%, 0.052 7.7%, 0.104 11.5%, 0.165 15.4%, 0.231 19.2%, 0.298 23.1%, 0.364 26.9%,
+    0.428 30.8%, 0.489 34.6%, 0.545 38.5%, 0.598 42.3%, 0.645 46.2%, 0.688 50%, 0.727 53.8%,
+    0.762 57.7%, 0.793 61.5%, 0.82 65.4%, 0.844 69.2%, 0.866 73.1%, 0.884 76.9%, 0.9 80.8%,
+    0.914 84.6%, 0.927 88.5%, 0.937 92.3%, 0.946 96.2%, 1
+  );
+  --x-snappy: linear(
+    0, 0.034 3.8%, 0.121 7.7%, 0.239 11.5%, 0.372 15.4%, 0.505 19.2%, 0.631 23.1%, 0.744 26.9%,
+    0.839 30.8%, 0.917 34.6%, 0.976 38.5%, 1.02 42.3%, 1.049 46.2%, 1.067 50%, 1.074 53.8%,
+    1.075 57.7%, 1.071 61.5%, 1.063 65.4%, 1.054 69.2%, 1.043 73.1%, 1.033 76.9%, 1.024 80.8%,
+    1.016 84.6%, 1.01 88.5%, 1.004 92.3%, 1 96.2%, 1
+  );
+  --x-bouncy: linear(
+    0, 0.076 3.8%, 0.263 7.7%, 0.501 11.5%, 0.74 15.4%, 0.945 19.2%, 1.097 23.1%, 1.19 26.9%,
+    1.227 30.8%, 1.221 34.6%, 1.185 38.5%, 1.132 42.3%, 1.077 46.2%, 1.026 50%, 0.987 53.8%,
+    0.962 57.7%, 0.949 61.5%, 0.948 65.4%, 0.954 69.2%, 0.966 73.1%, 0.978 76.9%, 0.99 80.8%, 1 84.6%,
+    1.007 88.5%, 1.011 92.3%, 1.012 96.2%, 1
+  );
+  --x-fast: 260ms;
+  --x-dur: 460ms;
+  --x-slow: 720ms;
+
+  /* 环境光斑（浅色下压低饱和度，避免脏） */
+  --ambient-a: #4fb3a5;
+  --ambient-b: #7b8ce0;
+  --ambient-c: #d96ba8;
+  --ambient-opacity: 0.46;
+}
+
+.dark {
+  --ambient-a: #2f8f84;
+  --ambient-b: #4a5aa8;
+  --ambient-c: #9b4a78;
+  --ambient-opacity: 0.4;
+}
+
+/* --------------------------------------------------------------------------
+   1. 环境层：缓慢流动的渐变色斑（Apple 产品页背景那种「活的」底色）
+   -------------------------------------------------------------------------- */
+/* 滚动容器：给内部元素提供 --page 这条滚动时间线 */
+.cinema-scroller {
+  scroll-timeline-name: --page;
+  scroll-timeline-axis: block;
+}
+
+/* 页面内容：压住环境层之上 */
+.cinema-content {
+  position: relative;
+  z-index: 1;
+}
+
+.cinema-ambient {
+  position: fixed;
+  inset: -14%;
+  /* 负层级：垫在侧栏与卡片下面，只有毛玻璃表面能透出它 */
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  /* 滚动视差：往下滚时整层反向轻移，制造纵深 */
+  animation: cinema-ambient-drift linear both;
+  animation-timeline: --page;
+  animation-range: 0 100%;
+}
+
+.cinema-blob {
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  filter: blur(72px) saturate(150%);
+  opacity: var(--ambient-opacity);
+  will-change: transform;
+}
+
+.cinema-blob--a {
+  top: -8%;
+  left: -6%;
+  background: radial-gradient(circle at 35% 35%, var(--ambient-a), transparent 62%);
+  animation: cinema-blob-a 26s ease-in-out infinite alternate;
+}
+
+.cinema-blob--b {
+  top: 18%;
+  right: -12%;
+  background: radial-gradient(circle at 40% 40%, var(--ambient-b), transparent 64%);
+  animation: cinema-blob-b 32s ease-in-out infinite alternate;
+}
+
+.cinema-blob--c {
+  bottom: -18%;
+  left: 22%;
+  background: radial-gradient(circle at 45% 45%, var(--ambient-c), transparent 66%);
+  animation: cinema-blob-c 38s ease-in-out infinite alternate;
+}
+
+@keyframes cinema-ambient-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(0, -9%, 0) scale(1.08);
+  }
+}
+
+@keyframes cinema-blob-a {
+  from {
+    transform: translate3d(-6%, -4%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(14%, 10%, 0) scale(1.22);
+  }
+}
+
+@keyframes cinema-blob-b {
+  from {
+    transform: translate3d(8%, 6%, 0) scale(1.1);
+  }
+  to {
+    transform: translate3d(-12%, -8%, 0) scale(0.94);
+  }
+}
+
+@keyframes cinema-blob-c {
+  from {
+    transform: translate3d(-10%, 8%, 0) scale(1.06);
+  }
+  to {
+    transform: translate3d(12%, -12%, 0) scale(1.18);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. 毛玻璃表面
+   -------------------------------------------------------------------------- */
+.cinema-glass {
+  /* 80% 不透明度：既能让底下的渐变透上来，又不至于把表格数字染上色 */
+  background: color-mix(in srgb, var(--c-card) 80%, transparent);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border-color: color-mix(in srgb, var(--c-line) 76%, transparent);
+}
+
+/* 卡片：顶部一道内高光，像玻璃反光 */
+.cinema-glass-sheen {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 18px 40px -24px rgba(16, 24, 40, 0.28);
+}
+
+.dark .cinema-glass-sheen {
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent),
+    0 18px 40px -26px rgba(0, 0, 0, 0.6);
+}
+
+/* --------------------------------------------------------------------------
+   3. 滚动驱动揭示：卡片进视口时「放大 + 去模糊 + 上浮」
+   -------------------------------------------------------------------------- */
+@keyframes cinema-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 34px, 0) scale(0.93);
+    filter: blur(9px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes cinema-reveal-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0.35;
+    transform: translate3d(0, -22px, 0) scale(0.96);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  html[data-motion='showcase'] .cinema-reveal {
+    animation: cinema-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 5% entry 75%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. 英雄区：滚动时「缩小 + 虚化」钉在顶部
+   -------------------------------------------------------------------------- */
+@keyframes cinema-hero {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+  to {
+    transform: scale(0.94) translate3d(0, -6px, 0);
+    filter: blur(2px);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  html[data-motion='showcase'] .cinema-hero {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    animation: cinema-hero linear both;
+    animation-timeline: --page;
+    animation-range: 0 240px;
+  }
+
+  /* 钉住之后垫一层毛玻璃，避免和下面的表格糊在一起 */
+  html[data-motion='showcase'] .cinema-hero::before {
+    content: '';
+    position: absolute;
+    inset: -12px -14px -10px;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--c-bg) 74%, transparent);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    opacity: 0;
+    z-index: -1;
+    animation: cinema-hero-bg linear both;
+    animation-timeline: --page;
+    animation-range: 0 240px;
+  }
+}
+
+@keyframes cinema-hero-bg {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. 滚动进度条
+   -------------------------------------------------------------------------- */
+@keyframes cinema-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.cinema-progress {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: 3px;
+  margin: -24px -24px 21px;
+  transform-origin: 0 50%;
+  /* 基础状态必须是「零进度」：页面不可滚动时滚动时间线不活跃，
+     动画不生效，这里就会露出全宽的渐变条——所以默认收成 0 */
+  transform: scaleX(0);
+  background: linear-gradient(90deg, var(--c-accent), #7b8ce0 52%, #d96ba8);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--c-accent) 60%, transparent);
+}
+
+@supports (animation-timeline: scroll()) {
+  html[data-motion='showcase'] .cinema-progress {
+    animation: cinema-progress linear both;
+    animation-timeline: --page;
+    animation-range: 0 100%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   6. 路由转场（View Transitions）+ 主题圆形擦除
+   -------------------------------------------------------------------------- */
+@keyframes cinema-vt-out {
+  to {
+    opacity: 0;
+    transform: scale(0.965);
+    filter: blur(10px);
+  }
+}
+
+@keyframes cinema-vt-in {
+  from {
+    opacity: 0;
+    transform: scale(1.035);
+    filter: blur(12px);
+  }
+}
+
+html[data-motion='showcase']::view-transition-old(root) {
+  animation: cinema-vt-out 320ms cubic-bezier(0.3, 0, 1, 1) both;
+}
+
+html[data-motion='showcase']::view-transition-new(root) {
+  animation: cinema-vt-in 520ms var(--x-soft) both;
+}
+
+/* 跨路由共享的标题：morph 而不是各自出现 */
+html[data-motion='showcase'] .cinema-title {
+  view-transition-name: page-title;
+}
+
+@keyframes cinema-vt-title {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.9);
+    filter: blur(10px);
+  }
+}
+
+html[data-motion='showcase']::view-transition-new(page-title) {
+  animation: cinema-vt-title 560ms var(--x-snappy) both;
+}
+
+html[data-motion='showcase']::view-transition-old(page-title) {
+  animation: cinema-vt-out 260ms cubic-bezier(0.3, 0, 1, 1) both;
+}
+
+/* 主题切换：从按钮位置扩散的圆形擦除 */
+@keyframes cinema-theme-wipe {
+  from {
+    clip-path: circle(0% at var(--wipe-x, 50%) var(--wipe-y, 8%));
+  }
+  to {
+    clip-path: circle(150% at var(--wipe-x, 50%) var(--wipe-y, 8%));
+  }
+}
+
+html.cinema-theme-wipe::view-transition-old(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.cinema-theme-wipe::view-transition-new(root) {
+  animation: cinema-theme-wipe 640ms var(--x-soft) both;
+  mix-blend-mode: normal;
+}
+
+/* --------------------------------------------------------------------------
+   7. 光标追踪的高光 + 3D 倾斜（卡片）
+   -------------------------------------------------------------------------- */
+.cinema-tilt {
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(calc(var(--tilt-y, 0) * -1deg)) rotateY(calc(var(--tilt-x, 0) * 1deg));
+  transition: transform 240ms var(--x-snappy);
+}
+
+.cinema-spec {
+  position: relative;
+  overflow: hidden;
+}
+
+.cinema-spec::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    420px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--c-accent) 26%, transparent),
+    transparent 62%
+  );
+  opacity: 0;
+  transition: opacity 260ms var(--x-fast, 260ms) ease;
+}
+
+.cinema-spec:hover::after {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   8. 弹窗 = iOS sheet：从下方弹入 + 强背景虚化
+   -------------------------------------------------------------------------- */
+@keyframes cinema-sheet-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 9%, 0) scale(0.86);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes cinema-sheet-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 5%, 0) scale(0.93);
+    filter: blur(6px);
+  }
+}
+
+html[data-motion='showcase'] .cinema-sheet-in {
+  animation: cinema-sheet-in 560ms var(--x-bouncy) both;
+}
+
+html[data-motion='showcase'] .cinema-sheet-out {
+  animation: cinema-sheet-out 260ms cubic-bezier(0.3, 0, 1, 1) both;
+}
+
+.cinema-scrim {
+  background: color-mix(in srgb, #0b1020 34%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* --------------------------------------------------------------------------
+   9. 提示条：弹入 + 成功粒子爆发
+   -------------------------------------------------------------------------- */
+@keyframes cinema-toast-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0) scale(0.88);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+html[data-motion='showcase'] .cinema-toast-in {
+  animation: cinema-toast-in 520ms var(--x-bouncy) both;
+}
+
+.cinema-burst {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.cinema-burst i {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  border-radius: 50%;
+  background: var(--c-ok);
+  animation: cinema-burst 760ms var(--x-soft) both;
+  animation-delay: var(--bd, 0ms);
+}
+
+.cinema-burst i:nth-child(odd) {
+  background: var(--c-accent);
+}
+
+@keyframes cinema-burst {
+  0% {
+    opacity: 0;
+    transform: rotate(calc(var(--a) * 1deg)) translateX(2px) scale(0.3);
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--a) * 1deg)) translateX(30px) scale(1.05);
+  }
+}
+
+/* 成功环：一圈扩散出去的光环 */
+@keyframes cinema-ring {
+  from {
+    opacity: 0.85;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.6);
+  }
+}
+
+.cinema-ring {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  border-radius: 50%;
+  border: 2px solid var(--c-ok);
+  animation: cinema-ring 720ms var(--x-soft) both;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   10. 导航：弹簧指示条 + 磁吸悬停 + 图标弹跳
+   -------------------------------------------------------------------------- */
+html[data-motion='showcase'] .m-pill {
+  transition:
+    transform 460ms var(--x-snappy),
+    opacity 220ms var(--x-fast, 260ms) ease;
+}
+
+html[data-motion='showcase'] .cinema-nav-link {
+  transition:
+    transform 380ms var(--x-snappy),
+    background-color 260ms ease,
+    color 260ms ease;
+}
+
+html[data-motion='showcase'] .cinema-nav-link:hover {
+  transform: translateX(5px);
+}
+
+html[data-motion='showcase'] .cinema-nav-icon {
+  display: inline-block;
+  transition: transform 380ms var(--x-bouncy);
+}
+
+html[data-motion='showcase'] .cinema-nav-link:hover .cinema-nav-icon {
+  transform: scale(1.3) rotate(-8deg);
+}
+
+@keyframes cinema-nav-in {
+  from {
+    opacity: 0;
+    transform: translate3d(-22px, 0, 0);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+html[data-motion='showcase'] .cinema-nav-item {
+  animation: cinema-nav-in 560ms var(--x-snappy) both;
+  animation-delay: calc(var(--m-i, 0) * 45ms);
+}
+
+/* --------------------------------------------------------------------------
+   11. 按钮：高光扫过 + 更夸张的按压回弹
+   -------------------------------------------------------------------------- */
+.cinema-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.cinema-sheen::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    108deg,
+    transparent 32%,
+    color-mix(in srgb, #fff 46%, transparent) 46%,
+    transparent 62%
+  );
+  transform: translateX(-130%);
+  transition: transform 700ms var(--x-soft);
+  pointer-events: none;
+}
+
+.cinema-sheen:hover::after {
+  transform: translateX(130%);
+}
+
+html[data-motion='showcase'] .m-press:active {
+  transform: scale(0.93);
+}
+
+html[data-motion='showcase'] .m-press {
+  transition:
+    transform 380ms var(--x-snappy),
+    background-color 260ms ease,
+    border-color 260ms ease,
+    color 260ms ease,
+    opacity 260ms ease,
+    box-shadow 300ms ease;
+}
+
+html[data-motion='showcase'] .m-press:active {
+  transition-duration: 90ms;
+  transition-timing-function: ease-out;
+}
+
+html[data-motion='showcase'] .m-press:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 10px 22px -14px rgba(16, 24, 40, 0.5);
+}
+
+html[data-motion='showcase'] .m-press:active:hover {
+  transform: scale(0.93);
+  box-shadow: none;
+}
+
+/* 主按钮的发光：让它看起来「是亮的」 */
+html[data-motion='showcase'] .cinema-glow {
+  box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--c-accent) 85%, transparent);
+}
+
+html[data-motion='showcase'] .cinema-glow:hover {
+  box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--c-accent) 95%, transparent);
+}
+
+/* --------------------------------------------------------------------------
+   12. 表格行：悬停整行抬起 + 左侧色条划出
+   注意：一定不要给 <tr> 加 position: relative 或 ::before——Chromium 会把表格列宽算歪
+   （实测日期列被从 112px 压到 96px、行高翻倍），侧条改用 inset 阴影实现。
+   -------------------------------------------------------------------------- */
+.cinema-row {
+  transition:
+    transform 320ms var(--x-snappy),
+    background-color 240ms ease,
+    box-shadow 240ms ease;
+}
+
+html[data-motion='showcase'] .cinema-row:hover {
+  transform: translateX(4px) scale(1.006);
+  background: color-mix(in srgb, var(--c-accent) 7%, transparent);
+  box-shadow: inset 3px 0 0 0 var(--c-accent);
+}
+
+/* --------------------------------------------------------------------------
+   13. 页面标题：模糊聚焦入场（Apple 那种大标题）
+   -------------------------------------------------------------------------- */
+@keyframes cinema-title-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0) scale(0.96);
+    filter: blur(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+html[data-motion='showcase'] .cinema-page-title {
+  animation: cinema-title-in 760ms var(--x-soft) both;
+}
+
+/* 页面主体：整体轻微推近再落定，跟着 view transition 一起用 */
+@keyframes cinema-page-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0) scale(0.985);
+    filter: blur(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+html[data-motion='showcase'] .m-page {
+  animation: cinema-page-in 620ms var(--x-soft) both;
+}
+
+/* --------------------------------------------------------------------------
+   14. 数字变化时的冲击波（金额滚动到新值的瞬间）
+   -------------------------------------------------------------------------- */
+@keyframes cinema-amount-pop {
+  0% {
+    transform: scale(1);
+  }
+  32% {
+    transform: scale(1.08);
+    filter: brightness(1.25);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+}
+
+html[data-motion='showcase'] .cinema-amount-pop {
+  display: inline-block;
+  animation: cinema-amount-pop 620ms var(--x-bouncy);
+}
+
+/* --------------------------------------------------------------------------
+   15. 三档强度与无障碍
+   -------------------------------------------------------------------------- */
+
+/* 非炫技档：把这一层里最「吵」的部分收掉 */
+html:not([data-motion='showcase']) .cinema-ambient,
+html:not([data-motion='showcase']) .cinema-progress {
+  display: none;
+}
+
+html:not([data-motion='showcase']) .cinema-blob {
+  animation: none;
+}
+
+html:not([data-motion='showcase']) .cinema-glass {
+  background: var(--c-card);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html[data-motion='minimal'] .cinema-glass-sheen {
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -12px rgba(16, 24, 40, 0.12);
+}
+
+/* 极简档 / 系统减少动态效果：一律退化成瞬时 */
+html[data-motion='minimal'] *,
+html[data-motion='minimal'] *::before,
+html[data-motion='minimal'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html *,
+  html *::before,
+  html *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .cinema-blob,
+  .cinema-ambient {
+    animation: none !important;
+  }
+}

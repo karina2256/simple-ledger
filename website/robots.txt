@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# 不需要被收录的目录
+Disallow: /assets/
+
+Sitemap: https://example.com/sitemap.xml

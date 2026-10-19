@@ -1,0 +1,407 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --c-bg: #f4f6f8;
+  --c-card: #ffffff;
+  --c-soft: #eef2f5;
+  --c-line: #e2e8ee;
+  --c-text: #1f2a33;
+  --c-muted: #5f6e7c;
+  --c-accent: #2e9e93;
+  --c-accent-soft: #e3f3f1;
+  --c-danger: #cf5f5a;
+  --c-warn: #cf9a3d;
+  --c-ok: #3f9e6b;
+  /* 日历三色：对白底实测 收入 5.32:1、支出 5.74:1、弱化 5.24:1，都过 WCAG AA */
+  --c-income: #1f7a4d;
+  --c-expense: #b23f38;
+}
+
+.dark {
+  --c-bg: #13171c;
+  --c-card: #1b2128;
+  --c-soft: #222a32;
+  --c-line: #2b343d;
+  --c-text: #e5eaef;
+  --c-muted: #93a1ae;
+  --c-accent: #48b4a7;
+  --c-accent-soft: #1c3431;
+  --c-danger: #e07b76;
+  --c-warn: #dcae57;
+  --c-ok: #57b57f;
+  /* 对深色卡片 #1b2128 实测 收入 8.55:1、支出 7.00:1 */
+  --c-income: #6fcf9a;
+  --c-expense: #f0908a;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: 'Microsoft YaHei UI', 'Microsoft YaHei', 'PingFang SC', 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--c-line);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+input[type='date']::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.dark input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+/* ==========================================================================
+   动效层（motion layer）
+
+   设计口径 —— 账本是每天要看好几遍的工具，动效只服务于三件事：
+   状态变化看得见、方向感清楚、不挡手。所以：
+     · 性格 Corporate：克制、可预测，只有「记账成功」一处允许轻微过冲；
+     · 只动 transform / opacity（合成层），不动 width / height / margin；
+     · 时长三档 120 / 220 / 320ms，入场比退场长（退场 180ms 左右）；
+     · 列表错峰 26ms × 序号，总预算控制在 500ms 以内。
+
+   改动画先改这里的 --m-* 变量，不要在组件里写死时长和曲线。
+   ========================================================================== */
+:root {
+  --m-quick: 120ms;
+  --m-std: 220ms;
+  --m-slow: 320ms;
+  /* 屏内通用（对称）／入场（减速）／退场（加速）／成功反馈（过冲） */
+  --m-ease: cubic-bezier(0.2, 0, 0, 1);
+  --m-ease-out: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --m-ease-in: cubic-bezier(0.3, 0, 1, 1);
+  --m-ease-back: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  /* 列表错峰步长 */
+  --m-stagger: 26ms;
+}
+
+/* ---- keyframes ---- */
+
+/* 卡片 / 表格行 / 日历格入场：下方向上落位，配合透明度 */
+@keyframes m-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* 整页切换：比卡片幅度更小，避免「页面飞进来」的廉价感 */
+@keyframes m-page {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* 弹窗：遮罩纯淡入，面板轻微下移 + 缩放，形成「聚焦」的层次 */
+@keyframes m-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes m-overlay-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes m-dialog-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes m-dialog-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0) scale(0.985);
+  }
+}
+
+/* 提示条：从底部滑入，上浮方向与它在屏幕上的位置一致 */
+@keyframes m-toast-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes m-toast-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0) scale(0.98);
+  }
+}
+
+/* 出错提示条：滑入后左右各收一次，2 次震荡收住、不回弹（错误要「硬」） */
+@keyframes m-toast-error {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  35% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-6px, 0, 0);
+  }
+  62% {
+    transform: translate3d(5px, 0, 0);
+  }
+  74% {
+    transform: translate3d(-3px, 0, 0);
+  }
+  86% {
+    transform: translate3d(2px, 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* 表单校验失败：输入框横向抖动，提示「这里不对」而不是靠弹窗 */
+@keyframes m-shake {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  15% {
+    transform: translate3d(-6px, 0, 0);
+  }
+  30% {
+    transform: translate3d(5px, 0, 0);
+  }
+  45% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  60% {
+    transform: translate3d(3px, 0, 0);
+  }
+  80% {
+    transform: translate3d(-2px, 0, 0);
+  }
+}
+
+/* 成功：唯一允许过冲的地方，幅度控制在 12% */
+@keyframes m-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 对勾描线：靠 stroke-dashoffset 画出，比直接出现更「确认」 */
+@keyframes m-draw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 加载：linear 是唯一正确的选择（旋转不适用缓动曲线） */
+@keyframes m-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 等待态的环境层：呼吸，1.8s 一个周期 */
+@keyframes m-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ---- 组合类 ---- */
+
+/** 入场：卡片、表格行、日历格。用 --m-i 指定序号自动错峰 */
+.m-rise {
+  animation: m-rise var(--m-std) var(--m-ease-out) both;
+  animation-delay: calc(var(--m-i, 0) * var(--m-stagger));
+}
+
+/** 页面级切换 */
+.m-page {
+  animation: m-page var(--m-slow) var(--m-ease-out) both;
+}
+
+/** 日历视图切换：比整页切换短，翻月份不该有等待感 */
+.m-view {
+  animation: m-rise 180ms var(--m-ease-out) both;
+}
+
+.m-overlay-in {
+  animation: m-overlay-in var(--m-quick) var(--m-ease) both;
+}
+
+.m-overlay-out {
+  animation: m-overlay-out var(--m-quick) var(--m-ease-in) both;
+}
+
+.m-dialog-in {
+  animation: m-dialog-in var(--m-slow) var(--m-ease-out) both;
+}
+
+.m-dialog-out {
+  animation: m-dialog-out 180ms var(--m-ease-in) both;
+}
+
+.m-toast-in {
+  animation: m-toast-in var(--m-std) var(--m-ease-out) both;
+}
+
+.m-toast-out {
+  animation: m-toast-out 180ms var(--m-ease-in) both;
+}
+
+.m-toast-error {
+  animation: m-toast-error 380ms var(--m-ease) both;
+}
+
+.m-shake {
+  animation: m-shake 360ms var(--m-ease) both;
+}
+
+.m-pop {
+  animation: m-pop 320ms var(--m-ease-back) both;
+}
+
+.m-draw {
+  stroke-dasharray: 24;
+  animation: m-draw 260ms var(--m-ease-out) 120ms both;
+}
+
+.m-spin {
+  animation: m-spin 700ms linear infinite;
+}
+
+.m-breathe {
+  animation: m-breathe 1800ms ease-in-out infinite;
+}
+
+/** 按压反馈：只动 transform；悬停 / 释放阶段交给 220ms 的缓动收住 */
+.m-press {
+  transition:
+    transform var(--m-quick) var(--m-ease),
+    background-color var(--m-std) var(--m-ease),
+    border-color var(--m-std) var(--m-ease),
+    color var(--m-std) var(--m-ease),
+    opacity var(--m-std) var(--m-ease);
+}
+
+.m-press:active {
+  transform: scale(0.97);
+}
+
+/** 侧栏导航当前项指示条：位移动画，滑到当前页 */
+.m-pill {
+  transition:
+    transform var(--m-std) var(--m-ease-out),
+    opacity var(--m-quick) var(--m-ease);
+}
+
+/** 主题切换：由 App 临时挂到 <html> 上，让整屏颜色一起过渡，320ms 后摘掉 */
+html.m-theme-anim,
+html.m-theme-anim * {
+  transition:
+    background-color var(--m-slow) var(--m-ease),
+    border-color var(--m-slow) var(--m-ease),
+    color var(--m-slow) var(--m-ease) !important;
+}
+
+/* 系统开了「减少动态效果」：一律退化成瞬时，不留位移和缩放 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .m-press:active {
+    transform: none;
+  }
+}

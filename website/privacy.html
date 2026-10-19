@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>隐私政策 · 记账簿</title>
+    <meta name="description" content="记账簿隐私政策：不联网、不上传、不收集任何个人信息，没有账号体系与第三方统计。数据只保存在你自己的电脑上。" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://example.com/privacy.html" />
+    <link rel="icon" href="assets/icons/icon.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+      .doc { max-width: 760px; margin: 0 auto; padding: clamp(40px, 7vw, 90px) clamp(16px, 4vw, 40px); position: relative; z-index: 1; }
+      .doc h1 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -0.02em; margin: 0 0 8px; }
+      .doc .updated { color: var(--c-muted); font-size: 13.5px; margin: 0 0 30px; }
+      .doc h2 { font-size: 19px; margin: 34px 0 10px; }
+      .doc p, .doc li { color: var(--c-muted); font-size: 15px; }
+      .doc strong { color: var(--c-text); }
+      .doc ul { padding-left: 20px; }
+      .doc li { margin: 6px 0; }
+      .doc code { background: var(--c-soft); padding: 1px 6px; border-radius: 5px; font-size: 13.5px; }
+      .doc .back { display: inline-flex; align-items: center; gap: 6px; color: var(--c-accent); margin-bottom: 24px; font-size: 14px; }
+      .doc .lead { padding: 20px 22px; border-radius: var(--radius); border-left: 3px solid var(--c-accent); }
+    </style>
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true">
+      <span class="blob blob--a"></span>
+      <span class="blob blob--b"></span>
+    </div>
+
+    <header class="nav">
+      <a class="nav__brand" href="index.html">
+        <img src="assets/icons/icon.png" alt="记账簿图标" width="28" height="28" />
+        <span>记账簿</span>
+      </a>
+      <div class="nav__actions" style="margin-left:auto">
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="切换深浅色">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" />
+          </svg>
+        </button>
+        <a class="btn btn--primary btn--sm" href="index.html#download">免费下载</a>
+      </div>
+    </header>
+
+    <main class="doc">
+      <a class="back" href="index.html">← 返回首页</a>
+      <h1>隐私政策</h1>
+      <p class="updated">最后更新：2026 年 9 月 30 日 · 适用于记账簿 Windows 桌面版</p>
+
+      <div class="glass lead">
+        <p style="margin:0;color:var(--c-text)">
+          <strong>一句话总结：记账簿不联网、不上传、不收集你的任何信息。</strong>
+          这不是承诺，而是这个软件的结构决定的——它没有联网的代码路径，也没有账号体系。
+        </p>
+      </div>
+
+      <h2>1. 我们收集什么信息</h2>
+      <p><strong>不收集任何信息。</strong>具体包括：</p>
+      <ul>
+        <li>不需要注册、不需要手机号或邮箱，没有账号体系；</li>
+        <li>不收集设备信息、位置、通讯录、短信、相册或使用行为；</li>
+        <li>不含任何第三方统计 SDK、广告 SDK 或崩溃上报服务；</li>
+        <li>网站本身（本页面所在的站点）不设置 Cookie，不加载第三方脚本或字体。</li>
+      </ul>
+
+      <h2>2. 你的记账数据在哪里</h2>
+      <p>
+        全部保存在<strong>你自己的电脑上</strong>：就是你第一次打开软件时选择的那个数据目录。
+        里面有三个东西：
+      </p>
+      <ul>
+        <li><code>daily-ledger.db</code> —— 全部账目（一个 SQLite 数据库文件）</li>
+        <li><code>attachments\</code> —— 你添加的收据截图</li>
+        <li><code>backup\</code> —— 自动与手动备份</li>
+      </ul>
+      <p>
+        这些文件<strong>不会</strong>以任何方式离开你的电脑。把整个目录复制到新电脑即可继续使用；
+        删除这个目录，数据就彻底消失，我们这边没有任何副本。
+      </p>
+
+      <h2>3. 截图识别会联网吗</h2>
+      <p>
+        <strong>不会。</strong>账单截图的文字识别（OCR）用的是随软件一起安装到本机的离线模型，
+        识别过程完全在你的电脑上完成，<strong>截图图片不会被发送到任何服务器</strong>。
+        这也是安装包有 116 MB 的原因——模型和运行环境都打包在里面了。
+      </p>
+
+      <h2>4. 软件会联网吗</h2>
+      <p>
+        只有一处例外需要说明清楚：你手动点击「设置 → 关于 → 检查更新」时，
+        软件会请求一个静态的版本描述文件，用来判断是否有新版本。
+        这个请求<strong>不携带任何账号、设备标识或使用数据</strong>，你也可以完全不点它。
+        除此之外软件不发起任何网络请求，断网状态下全部功能可用。
+      </p>
+
+      <h2>5. 本网站</h2>
+      <p>
+        本站是纯静态页面，不使用 Cookie、不加载第三方统计脚本（例如 Google Analytics、百度统计）、
+        不加载第三方 CDN 或字体。你访问本站时，我们无法知道你是谁。
+        服务器访问日志（如由托管商记录）不包含我们主动收集的信息。
+      </p>
+
+      <h2>6. 儿童隐私</h2>
+      <p>本软件不面向儿童设计，也不收集任何年龄信息——因为不收集任何信息。</p>
+
+      <h2>7. 政策变更</h2>
+      <p>
+        如果未来版本引入了需要联网的功能（例如可选的云同步），我们会在软件内明确提示，
+        并在本页与「更新日志」中说明。在那种功能出现之前，本政策所述的行为不会改变。
+      </p>
+
+      <h2>8. 联系方式</h2>
+      <p>
+        对本政策有疑问，可通过首页页脚的渠道联系我们。
+        <em>（发布前请把这里替换成你的真实邮箱或联系方式。）</em>
+      </p>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <div>
+          <img src="assets/icons/icon.png" alt="" width="22" height="22" />
+          <span>记账簿 · 本地离线记账</span>
+        </div>
+        <nav>
+          <a href="index.html#features">功能</a>
+          <a href="index.html#privacy">隐私</a>
+          <a href="index.html#download">下载</a>
+          <a href="privacy.html">隐私政策</a>
+        </nav>
+        <p class="footer__note">本站不设置 Cookie、不加载第三方统计脚本、不收集访客信息。</p>
+      </div>
+    </footer>
+
+    <script>
+      // 隐私页只需要主题切换，不引 main.js（那边有下载按钮逻辑）
+      ;(function () {
+        var html = document.documentElement
+        var stored = null
+        try { stored = localStorage.getItem('ledger-theme') } catch (e) {}
+        html.dataset.theme = stored || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        document.getElementById('themeBtn').addEventListener('click', function () {
+          var next = html.dataset.theme === 'dark' ? 'light' : 'dark'
+          html.dataset.theme = next
+          try { localStorage.setItem('ledger-theme', next) } catch (e) {}
+        })
+      })()
+    </script>
+  </body>
+</html>
